@@ -1,8 +1,8 @@
 <template>
-  <button @click="getResponse">요청 보내기</button>
-  <article id="response-area">
-
-  </article>
+  <h1>주소 좌표 출력</h1>
+  <input id="input-area" placeholder="주소 검색"/>
+  <button @click="saveInput(), getResponse()">검색</button>
+  <article id="response-area"></article>
 </template>
 
 <script>
@@ -10,12 +10,19 @@ export default {
   name: 'App',
   data() {
     return {
-      ex : 0,
-
+      input: "",
     }
   },
   methods : {
+    saveInput() {
+      const area = document.getElementById("input-area");
+
+      this.input = area.value;
+      console.log("input : " + this.input);
+    },
+
     async getResponse() {
+      console.log("getResponse start");
       const area = document.getElementById("response-area");
 
       try {
@@ -23,7 +30,7 @@ export default {
           analyze_type: "similar",
           page: 1,
           size: 10,
-          query: "경기도 구리시"
+          query: this.input
         }).toString(), {
           headers : {
             Authorization : "KakaoAK " + process.env.VUE_APP_REST_API_KEY
@@ -36,13 +43,18 @@ export default {
 
         const data = await response.json();
 
-        area.textContent = JSON.stringify(data);
+        const div1 = document.createElement("div");
+        div1.textContent = "x : " + data.documents[0].x;
+
+        const div2 = document.createElement("div");
+        div2.textContent = "y : " + data.documents[0].y;
+
+        area.textContent = "";
+        area.append(div1, div2);
 
       } catch (error) {
         console.error("데이터를 가져오는 도중 오류 발생", error);
       }
-
-
 
     }
   },
@@ -59,5 +71,8 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+article {
+  margin : 30px;
 }
 </style>
